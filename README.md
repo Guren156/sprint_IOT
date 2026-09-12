@@ -9,7 +9,6 @@ Documentação do componente de Inteligência Artificial do projeto **CLYVO VET*
 | Ana Clara de Oliveira Nascimento | 561957 |
 | Isis Macedo | 561497 |
 | Henrique Pereira | 565608 |
-| Pedro Mariutti | 75999 |
 | Rafael Carvalho Meireles | 563413 |
 
 ## Sobre esta entrega (Sprint 3)
