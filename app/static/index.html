@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLYVO VET - Assistente Inteligente</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #fff; --texto: #1d2733; --suave: #5d6b7a; --borda: #dde3ea;
+    --marca: #0f8b8d; --marca-escura: #0b6668;
+    --alta: #c62828; --alta-bg: #fdecea; --media: #b26a00; --media-bg: #fff4e0;
+    --baixa: #2e7d32; --baixa-bg: #e8f5e9; --info: #1565c0; --info-bg: #e8f0fb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--texto); }
+  header { background: var(--marca); color: #fff; padding: 14px 24px; display: flex; flex-wrap: wrap;
+           align-items: center; gap: 12px; justify-content: space-between; }
+  header h1 { font-size: 20px; margin: 0; }
+  header small { opacity: .85; }
+  .status { font-size: 12px; background: rgba(255,255,255,.18); padding: 4px 10px; border-radius: 99px; }
+  nav { display: flex; gap: 4px; padding: 0 24px; background: var(--marca-escura); }
+  nav button { background: none; border: 0; color: #cfe; padding: 10px 16px; cursor: pointer; font-size: 14px; }
+  nav button.ativo { color: #fff; border-bottom: 3px solid #fff; }
+  main { max-width: 1150px; margin: 20px auto; padding: 0 16px; }
+  .grade { display: grid; grid-template-columns: 260px 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grade { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--borda); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 16px; margin: 0 0 12px; }
+  label { font-size: 13px; color: var(--suave); }
+  select, textarea, input { width: 100%; padding: 8px; border: 1px solid var(--borda); border-radius: 6px; font: inherit; }
+  button.acao { background: var(--marca); color: #fff; border: 0; padding: 9px 16px; border-radius: 6px;
+                cursor: pointer; font-weight: 600; margin-top: 8px; }
+  button.acao:disabled { opacity: .5; cursor: wait; }
+  .pet { padding: 10px; border: 1px solid var(--borda); border-radius: 8px; margin-top: 8px; cursor: pointer; }
+  .pet.ativo { border-color: var(--marca); background: #e9f6f6; }
+  .pet b { display: block; }
+  .pet span { font-size: 12px; color: var(--suave); }
+  .perfil { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; }
+  .rec { border-left: 4px solid; padding: 8px 12px; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
+  .rec b { display: block; }
+  .ALTA { border-color: var(--alta); background: var(--alta-bg); }
+  .MEDIA { border-color: var(--media); background: var(--media-bg); }
+  .BAIXA { border-color: var(--baixa); background: var(--baixa-bg); }
+  .INFO { border-color: var(--info); background: var(--info-bg); }
+  .selo { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; color: #fff; }
+  .selo.ALTA { background: var(--alta); } .selo.MEDIA { background: var(--media); }
+  .selo.BAIXA { background: var(--baixa); } .selo.INFO { background: var(--info); }
+  .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1000px) { .duas { grid-template-columns: 1fr; } }
+  .chat { height: 300px; overflow-y: auto; background: #fafbfc; border: 1px solid var(--borda);
+          border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .msg { padding: 8px 12px; border-radius: 10px; margin-bottom: 8px; max-width: 90%; white-space: pre-wrap; font-size: 14px; }
+  .msg.tutor { background: var(--marca); color: #fff; margin-left: auto; }
+  .msg.ia { background: #eef1f4; }
+  .msg small { display: block; font-size: 11px; opacity: .7; margin-top: 4px; }
+  .sugestoes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .sugestoes button { font-size: 12px; border: 1px solid var(--borda); background: #fff; border-radius: 99px; padding: 4px 10px; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  th { color: var(--suave); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  .vazio { color: var(--suave); font-size: 14px; }
+  .erro { color: var(--alta); font-size: 14px; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>CLYVO VET · Assistente Inteligente</h1><small>IA Generativa + RAG sobre o histórico do pet</small></div>
+  <span class="status" id="status">conectando…</span>
+</header>
+<nav>
+  <button class="ativo" data-aba="tutor">App do Tutor</button>
+  <button data-aba="clinica">Painel da Clínica</button>
+</nav>
+
+<main>
+  <section id="aba-tutor" class="grade">
+    <aside>
+      <div class="card">
+        <h2>Tutor</h2>
+        <label for="tutor">Entrar como</label>
+        <select id="tutor"></select>
+        <div id="pets"></div>
+      </div>
+    </aside>
+    <div id="detalhe"><div class="card vazio">Selecione um pet para ver o painel de saúde.</div></div>
+  </section>
+
+  <section id="aba-clinica" class="oculto">
+    <div class="card">
+      <h2>Triagens recebidas (prioridade por urgência)</h2>
+      <div id="triagens"></div>
+    </div>
+    <div class="card">
+      <h2>Pets com vacina vencida (contato proativo)</h2>
+      <div id="vacinas"></div>
+    </div>
+  </section>
+</main>
+
+<template id="tpl-detalhe">
+  <div class="card">
+    <h2 data-campo="titulo"></h2>
+    <div class="perfil" data-campo="perfil"></div>
+  </div>
+  <div class="card">
+    <h2>Recomendações personalizadas</h2>
+    <div data-campo="recs"></div>
+  </div>
+  <div class="duas">
+    <div class="card">
+      <h2>Converse com o assistente</h2>
+      <div class="chat" data-campo="chat"></div>
+      <div class="sugestoes">
+        <button>As vacinas estão em dia?</button>
+        <button>Ele está tomando algum remédio?</button>
+        <button>Quando foi a última consulta?</button>
+      </div>
+      <input data-campo="pergunta" placeholder="Digite sua dúvida…" maxlength="500">
+      <button class="acao" data-campo="enviar">Enviar</button>
+    </div>
+    <div class="card">
+      <h2>Triagem de sintomas</h2>
+      <label>Descreva o que o pet está sentindo</label>
+      <textarea data-campo="sintomas" rows="4" maxlength="500"
+        placeholder="Ex.: está vomitando desde ontem e não quer comer"></textarea>
+      <button class="acao" data-campo="triar">Avaliar urgência</button>
+      <div data-campo="resultado" style="margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Histórico de saúde (dados do banco)</h2>
+    <table><thead><tr><th>Data</th><th>Tipo</th><th>Detalhes</th></tr></thead><tbody data-campo="hist"></tbody></table>
+  </div>
+</template>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dataBR = d => d ? d.slice(0, 10).split("-").reverse().join("/") + (d.length > 10 ? " " + d.slice(11, 16) : "") : "";
+
+async function api(url, corpo) {
+  const r = await fetch(url, corpo ? {method: "POST", headers: {"Content-Type": "application/json"},
+                                      body: JSON.stringify(corpo)} : undefined);
+  const dados = await r.json();
+  if (!r.ok) throw new Error(typeof dados.detail === "string" ? dados.detail : "Verifique os dados enviados.");
+  return dados;
+}
+
+let petAtual = null;
+
+async function iniciar() {
+  try {
+    const s = await api("/api/status");
+    $("#status").textContent = `Banco: ${s.banco.toUpperCase()} · IA: ${s.ia} (${s.modelo})`;
+    const tutores = await api("/api/tutores");
+    $("#tutor").innerHTML = tutores.map(t => `<option value="${t.id_usuario}">${esc(t.nome_usuario)}</option>`).join("");
+    await carregarPets();
+  } catch (e) {
+    $("#status").textContent = "erro de conexão";
+    $("#detalhe").innerHTML = `<div class="card erro">${esc(e.message)}</div>`;
+  }
+}
+
+async function carregarPets() {
+  const pets = await api(`/api/tutores/${$("#tutor").value}/pets`);
+  $("#pets").innerHTML = pets.length ? pets.map(p =>
+    `<div class="pet" data-id="${p.id_pet}"><b>${esc(p.nome_pet)}</b><span>${esc(p.especie)} · ${esc(p.raca)} · ${esc(p.nome_clinica)}</span></div>`
+  ).join("") : `<p class="vazio">Nenhum pet cadastrado.</p>`;
+  $("#pets").querySelectorAll(".pet").forEach(el => el.onclick = () => abrirPet(+el.dataset.id));
+  if (pets.length) abrirPet(pets[0].id_pet);
+  else $("#detalhe").innerHTML = `<div class="card vazio">Este tutor ainda não tem pets.</div>`;
+}
+
+async function abrirPet(id) {
+  petAtual = id;
+  document.querySelectorAll(".pet").forEach(el => el.classList.toggle("ativo", +el.dataset.id === id));
+  const d = await api(`/api/pets/${id}`);
+  const det = $("#detalhe");
+  det.innerHTML = "";
+  det.append($("#tpl-detalhe").content.cloneNode(true));
+  const c = n => det.querySelector(`[data-campo="${n}"]`);
+  const p = d.pet;
+  c("titulo").textContent = `${p.nome_pet} — ${p.especie}, ${p.raca}`;
+  c("perfil").innerHTML = `<span><b>Idade:</b> ${d.idade} anos</span><span><b>Peso:</b> ${p.peso} kg</span>
+    <span><b>Tutor:</b> ${esc(p.nome_usuario)}</span><span><b>Clínica:</b> ${esc(p.nome_clinica)} · ${esc(p.telefone_clinica)}</span>`;
+  c("recs").innerHTML = d.recomendacoes.length ? d.recomendacoes.map(r =>
+    `<div class="rec ${r.prioridade}"><b>${esc(r.titulo)} <span class="selo ${r.prioridade}">${r.prioridade}</span></b>${esc(r.detalhe)}</div>`
+  ).join("") : `<p class="vazio">Tudo em dia! Nenhuma ação pendente.</p>`;
+  c("hist").innerHTML = d.historico.map(h =>
+    `<tr><td>${dataBR(h.dt_evento)}</td><td>${esc(h.tipo_registro)}</td><td>${esc(h.detalhes)}</td></tr>`).join("");
+
+  const chat = c("chat");
+  const addMsg = (quem, texto, rodape) => {
+    chat.insertAdjacentHTML("beforeend", `<div class="msg ${quem}">${esc(texto)}${rodape ? `<small>${esc(rodape)}</small>` : ""}</div>`);
+    chat.scrollTop = chat.scrollHeight;
+  };
+  addMsg("ia", `Olá! Sou o assistente da CLYVO. Pergunte o que quiser sobre ${p.nome_pet}.`);
+  const enviar = async texto => {
+    texto = texto.trim();
+    if (texto.length < 3) return;
+    c("pergunta").value = "";
+    addMsg("tutor", texto);
+    c("enviar").disabled = true;
+    try {
+      const r = await api("/api/chat", {id_pet: id, pergunta: texto});
+      addMsg("ia", r.resposta, `IA: ${r.modo} · tutor ${r.perfil_tutor}` + (r.aviso ? ` · ${r.aviso}` : ""));
+    } catch (e) { addMsg("ia", "Erro: " + e.message); }
+    c("enviar").disabled = false;
+  };
+  c("enviar").onclick = () => enviar(c("pergunta").value);
+  c("pergunta").onkeydown = e => { if (e.key === "Enter") enviar(c("pergunta").value); };
+  det.querySelectorAll(".sugestoes button").forEach(b => b.onclick = () => enviar(b.textContent));
+
+  c("triar").onclick = async () => {
+    const texto = c("sintomas").value.trim();
+    if (texto.length < 3) { c("resultado").innerHTML = `<p class="erro">Descreva os sintomas.</p>`; return; }
+    c("triar").disabled = true;
+    c("resultado").innerHTML = `<p class="vazio">Analisando…</p>`;
+    try {
+      const r = await api("/api/triagem", {id_pet: id, sintomas: texto});
+      c("resultado").innerHTML = `<div class="rec ${r.nivel}"><b>Urgência ${r.nivel} <span class="selo ${r.nivel}">${r.nivel}</span></b>
+        ${esc(r.justificativa)}<br><b style="margin-top:6px">O que fazer:</b>${esc(r.orientacao)}
+        <small style="display:block;margin-top:6px;opacity:.75">IA: ${r.modo} · regras: ${r.nivel_regras} · LLM: ${r.nivel_llm ?? "—"}${r.aviso ? " · " + esc(r.aviso) : ""}<br>${esc(r.aviso_legal)}</small></div>`;
+    } catch (e) { c("resultado").innerHTML = `<p class="erro">${esc(e.message)}</p>`; }
+    c("triar").disabled = false;
+  };
+}
+
+async function carregarClinica() {
+  try {
+    const d = await api("/api/clinica/alertas");
+    $("#triagens").innerHTML = d.triagens.length ? `<table><thead><tr><th>Urgência</th><th>Pet / Tutor</th><th>Relato</th><th>Orientação dada</th><th>Quando</th></tr></thead><tbody>` +
+      d.triagens.map(t => `<tr><td><span class="selo ${t.nivel_urgencia}">${t.nivel_urgencia}</span></td>
+        <td><b>${esc(t.nome_pet)}</b><br>${esc(t.nome_usuario)} · ${esc(t.telefone)}</td><td>${esc(t.pergunta)}</td>
+        <td>${esc(t.resposta)}</td><td>${dataBR(t.dt_interacao)}</td></tr>`).join("") + `</tbody></table>`
+      : `<p class="vazio">Nenhuma triagem ainda. Faça uma pela aba "App do Tutor".</p>`;
+    $("#vacinas").innerHTML = d.vacinas_vencidas.length ? `<table><thead><tr><th>Pet</th><th>Vacina</th><th>Vencida há</th><th>Contato</th></tr></thead><tbody>` +
+      d.vacinas_vencidas.map(v => `<tr><td>${esc(v.nome_pet)}</td><td>${esc(v.vacina)}</td><td>${v.dias_vencida} dias</td>
+        <td>${esc(v.tutor)} · ${esc(v.telefone)}</td></tr>`).join("") + `</tbody></table>`
+      : `<p class="vazio">Nenhuma vacina vencida.</p>`;
+  } catch (e) { $("#triagens").innerHTML = `<p class="erro">${esc(e.message)}</p>`; }
+}
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("ativo", x === b));
+  $("#aba-tutor").classList.toggle("oculto", b.dataset.aba !== "tutor");
+  $("#aba-clinica").classList.toggle("oculto", b.dataset.aba !== "clinica");
+  if (b.dataset.aba === "clinica") carregarClinica();
+});
+$("#tutor").onchange = carregarPets;
+iniciar();
+</script>
+</body>
+</html>

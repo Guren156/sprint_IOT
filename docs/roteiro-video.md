@@ -1,43 +1,45 @@
-# Roteiro — Vídeo Pitch (Sprint 3, ~5 minutos)
+# Roteiro — Vídeo da Sprint 4 (~5 minutos)
 
-Objetivo do vídeo: apresentar a proposta da solução, o papel da IA no sistema, os benefícios para o tutor e para a clínica, e a arquitetura de funcionamento. Gravar em modo não listado no YouTube.
+Objetivo: apresentar a solução e **demonstrar o assistente funcionando de verdade**. O feedback da Sprint 3 pediu prototipação, então o vídeo deve ser principalmente demonstração. Publicar no YouTube como **não listado**.
 
-Dica: cada integrante pode falar uma parte, mostrando participação de todo o grupo.
-
----
-
-### 1. Abertura (0:00 – 0:30) — ~30s
-- Apresentar o grupo (nomes e RMs na tela ou faladas).
-- Uma frase: "Este é o vídeo pitch do componente de Inteligência Artificial do CLYVO VET, entrega da Sprint 3 da disciplina Disruptive Architectures."
-
-### 2. O Problema (0:30 – 1:30) — ~1 min
-- Explicar o contexto do CLYVO VET (app de gestão de saúde de pets: cadastro, consultas, vacinas, histórico).
-- Problema: tutores não têm acompanhamento proativo da saúde do pet; clínica perde tempo com dúvidas repetitivas e não prioriza atendimentos por urgência real.
-- Mostrar (tela ou protótipo) como seria a jornada do tutor sem o assistente.
-
-### 3. A Solução de IA e Justificativa (1:30 – 3:00) — ~1min30
-- Apresentar o "Assistente Inteligente CLYVO": IA Generativa (LLM) com RAG.
-- Justificar por que essa abordagem foi escolhida em vez de modelo preditivo, motor de regras ou recomendação clássica (usar a tabela comparativa da documentação como apoio visual).
-- Explicar rapidamente o que é RAG e por que ele evita respostas genéricas/erradas ("alucinação"): a resposta é sempre baseada nos dados reais daquele pet.
-
-### 4. Arquitetura e Fluxo de Dados (3:00 – 4:15) — ~1min15
-- Mostrar o diagrama de `arquitetura.md` na tela.
-- Narrar o fluxo passo a passo: tutor pergunta → app → backend busca dados no banco → contexto é montado → LLM responde → resposta volta ao tutor → alerta de urgência alta vai para a clínica.
-- Citar os dados usados (perfil, histórico clínico, vacinas, medicamentos) e de onde vêm.
-
-### 5. Benefícios (4:15 – 4:45) — ~30s
-- Para o tutor: orientação proativa, respostas imediatas, alertas de vacina/cuidado.
-- Para a clínica: triagem automática por urgência, redução de perguntas repetitivas, mais tempo para casos que realmente precisam de atenção humana.
-
-### 6. Encerramento (4:45 – 5:00) — ~15s
-- Reforçar que essa é a etapa de definição/documentação (Sprint 3) e que a implementação funcional será entregue na Sprint 4.
-- Agradecer.
+Antes de gravar: suba a aplicação (`python -m uvicorn app.main:app --port 8000`), abra http://localhost:8000 e deixe o SQL Developer aberto. Se possível, configure uma chave de LLM no `.env` para o status mostrar "IA: claude" ou "IA: gemini".
 
 ---
 
-## Checklist antes de gravar
-- [ ] Áudio claro, sem ruído de fundo
-- [ ] Diagrama de arquitetura visível na tela durante a parte 4
-- [ ] Todos os integrantes aparecem ou falam em algum momento
-- [ ] Vídeo publicado no YouTube em modo **não listado**
-- [ ] Link do vídeo adicionado ao README.md do repositório
+### 1. Abertura (0:00 – 0:20)
+- Grupo (nomes e RMs na tela).
+- "Na Sprint 3 apresentamos a proposta. Agora vamos mostrar o Assistente Inteligente da CLYVO VET funcionando."
+
+### 2. Problema e solução (0:20 – 1:00)
+- Tutor sem acompanhamento proativo; clínica sem priorização por urgência.
+- Solução: IA generativa com RAG sobre o histórico real do pet, mais regras de segurança (abordagem híbrida).
+
+### 3. Arquitetura (1:00 – 1:40)
+- Mostrar o diagrama de `docs/arquitetura.md`.
+- Tela → API FastAPI → Oracle (busca o pet) → contexto → LLM → resposta → log em `T_CLY_INTERACAO_IA` → painel da clínica.
+
+### 4. Demonstração (1:40 – 4:15) — a parte principal
+Seguir os cenários de `docs/testes.md`:
+1. Thor: mostrar as recomendações (V10 vencendo, check-up atrasado) e explicar que vêm do banco.
+2. Chat: "As vacinas estão em dia?" A resposta usa as datas reais.
+3. Mel: "Ela está tomando algum remédio?" O assistente cita a Amoxicilina.
+4. Triagem MÉDIA: "está vomitando desde ontem e não quer comer".
+5. Triagem ALTA (Nina): "comeu chocolate e está tremendo". Mostrar o telefone da clínica e o aviso legal.
+6. Painel da Clínica: a triagem ALTA no topo e as vacinas vencidas.
+7. SQL Developer: `SELECT * FROM T_CLY_INTERACAO_IA ORDER BY id_interacao DESC;` mostra o registro no Oracle.
+8. (Rápido) Rodar `python -m pytest -v` e mostrar os 12 testes passando.
+
+### 5. Benefícios e personalização (4:15 – 4:45)
+- Tutor: respostas imediatas baseadas no pet e alertas proativos; o tom muda de iniciante para recorrente.
+- Clínica: triagem priorizada, contato proativo de vacinas e auditoria das interações.
+
+### 6. Encerramento (4:45 – 5:00)
+- Repositório no GitHub com README e instruções. Agradecer.
+
+---
+
+## Checklist
+- [ ] Todos os integrantes falam em algum momento
+- [ ] A demonstração mostra as funcionalidades sem erro
+- [ ] O registro no Oracle aparece no SQL Developer
+- [ ] Vídeo publicado como **não listado** e link adicionado ao README.md
