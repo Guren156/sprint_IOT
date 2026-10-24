@@ -58,7 +58,7 @@ Na Sprint 3 definimos e documentamos a proposta. Nesta Sprint 4 o assistente est
 │   ├── 01_oracle_ia.sql   <- cria T_CLY_INTERACAO_IA e o histórico recente no Oracle
 │   └── 02_sqlite_demo.sql <- banco local de demonstração (mesmos dados)
 ├── tests/test_api.py      <- testes automatizados
-├── docs/                  <- documentação técnica, arquitetura, testes e roteiro do vídeo
+├── docs/                  <- documentação técnica, arquitetura e testes
 ├── requirements.txt
 └── .env.example           <- modelo de configuração (copie para .env)
 ```
