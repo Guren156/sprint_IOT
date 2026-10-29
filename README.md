@@ -15,7 +15,7 @@ Na Sprint 3 definimos e documentamos a proposta. Nesta Sprint 4 o assistente est
 
 ## Links da entrega
 
-- **Vídeo (YouTube, não listado):** _adicionar link aqui_
+- **Vídeo (YouTube, não listado):** https://youtu.be/Smx770mx2zw
 - **Vídeo da Sprint 3:** https://youtu.be/ZoQhvzi6FDc
 - **Documentação técnica:** [`docs/documentacao-tecnica.md`](./docs/documentacao-tecnica.md)
 - **Arquitetura:** [`docs/arquitetura.md`](./docs/arquitetura.md)
